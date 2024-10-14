@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Meaning Extension Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f0f4f7;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #007acc;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: justify;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+        .content:hover {
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #output p {
+            font-size: 1.1em;
+            color: #555;
+        }
+        strong {
+            color: #007acc;
+        }
+        #selectedWord {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Word Meaning Extension Demo</h1>
+    <p>Select any word from the text below to get its meaning, synonyms, antonyms, and pronunciation.</p>
+
+    <div class="content">
+        This is a demo paragraph. Feel free to select any word from this text to see its meaning and other related information. Try selecting words like "demo" or "information" and see how the extension-like feature works.
+    </div>
+
+    <div id="output">
+        <p><strong>Selected Word:</strong> <span id="selectedWord"></span></p>
+        <p><strong>Pronunciation:</strong> <span id="pronunciation"></span></p>
+        <p><strong>Definition 1:</strong> <span id="definition1"></span></p>
+        <p><strong>Definition 2:</strong> <span id="definition2"></span></p>
+        <p><strong>Synonym:</strong> <span id="synonym"></span></p>
+        <p><strong>Antonym:</strong> <span id="antonym"></span></p>
+    </div>
+
+    <script>
+        // Function to handle text selection and fetch meaning
+        function handleSelection() {
+            const selectedText = window.getSelection().toString().trim().toLowerCase();
+            if (!selectedText) return;  // If no text is selected, do nothing
+
+            document.getElementById("selectedWord").textContent = selectedText; // Display selected word
+
+            fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${selectedText}`)
+                .then(response => response.json())
+                .then(data => {
+                    const definitions = data[0]?.meanings[0]?.definitions || [];
+                    const pronunciation = data[0]?.phonetics[0]?.text || 'No pronunciation available.';
+                    const synonyms = data[0]?.meanings[0]?.synonyms || [];
+                    const antonyms = data[0]?.meanings[0]?.antonyms || [];
+
+                    document.getElementById("pronunciation").textContent = pronunciation;
+                    document.getElementById("definition1").textContent = definitions[0]?.definition || 'No definition found.';
+                    document.getElementById("definition2").textContent = definitions[1]?.definition || 'No second definition found.';
+                    document.getElementById("synonym").textContent = synonyms[0] || 'No synonym found.';
+                    document.getElementById("antonym").textContent = antonyms[0] || 'No antonym found.';
+
+                    document.getElementById("output").style.display = 'block';  // Show output box
+                })
+                .catch(() => alert('Error fetching word data.'));
+        }
+
+        // Event listener for text selection
+        document.querySelector(".content").addEventListener("mouseup", handleSelection);
+    </script>
+
+</body>
+</html>
